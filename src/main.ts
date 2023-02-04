@@ -1,9 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import * as dotenv from 'dotenv';
 
 const start = async () => {
   try {
-    const PORT = process.env.PORT || 5000;
+    dotenv.config();
+    const PORT = process.env.PORT || process.env.USER_PORT || 5000;
     const app = await NestFactory.create(AppModule)
 
     await app.listen(PORT, () => console.log(`Server has been started on port ${PORT}`));
