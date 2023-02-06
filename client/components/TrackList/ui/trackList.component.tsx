@@ -18,7 +18,6 @@ export const TrackListComponent: React.FC<ITrackListProps> = ({ tracks }) => {
           />
         )}
       </Box>
-
     </Grid>
   );
 };
