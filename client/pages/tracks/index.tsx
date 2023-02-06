@@ -1,20 +1,44 @@
-import React from 'react';
+import React, { useState } from 'react';
 import MainLayout from '@/layout/MainLayout';
-import { Box, Button, Card, Grid } from '@mui/material';
+import { Box, Button, Card, Grid, TextField } from '@mui/material';
 import { useRouter } from 'next/router';
-import { ITrack } from '@/types/tracks';
 import { TrackList } from '@/components/TrackList';
+import { useTypeSelector } from '@/hooks/useTypeSelector';
+import { NextThunkDispatch, wrapper } from '@/store';
+import { fetchTracks, searchTracks } from '@/store/action-creators/track';
+import { useDispatch } from 'react-redux';
 
 const TracksPages = () => {
   const router = useRouter();
-  const tracks: ITrack[] = [
-    { _id: '1', name: 'Track 1', artist: 'Artist 1', text: 'Some text', listens: 5, audio: 'http://localhost:5000/audio/123.mp3', picture: 'http://localhost:5000/image/123.png', comments: [] },
-    { _id: '2', name: 'Track 2', artist: 'Artist 2', text: 'Some text', listens: 5, audio: 'http://localhost:5000/audio/456.mp3', picture: 'http://localhost:5000/image/456.png', comments: [] },
-    { _id: '3', name: 'Track 3', artist: 'Artist 3', text: 'Some text', listens: 5, audio: 'http://localhost:5000/audio/789.mp3', picture: 'http://localhost:5000/image/789.png', comments: [] },
-  ];
+  const { tracks, error } = useTypeSelector(state => state.track);
+
+  const [query, setQuery] = useState<string>('');
+
+  const dispatch = useDispatch() as NextThunkDispatch;
+
+  const [timer, setTimer] = useState<any>(null);
+
+  const search = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
+    if (timer) {
+      clearTimeout(timer);
+    }
+
+    setTimer(
+      setTimeout(async () => {
+        await dispatch(await searchTracks(e.target.value));
+      }, 500)
+    );
+  }
+
+  if (error) {
+    return <MainLayout>
+      <h1>{error}</h1>
+    </MainLayout>
+  }
 
   return (
-    <MainLayout>
+    <MainLayout title="Tracks list - media platform">
       <Grid container justifyContent="center">
         <Card style={{ width: 900 }}>
           <Box p={3}>
@@ -23,7 +47,12 @@ const TracksPages = () => {
               <Button onClick={() => router.push('/tracks/create')}>Upload</Button>
             </Grid>
           </Box>
-          <TrackList tracks={tracks} />
+          <TextField
+            fullWidth
+            value={query}
+            onChange={search}
+          />
+          <TrackList tracks={tracks}/>
         </Card>
       </Grid>
     </MainLayout>
@@ -32,3 +61,9 @@ const TracksPages = () => {
 
 export default TracksPages;
 
+
+// @ts-ignore
+export const getServerSideProps = wrapper.getServerSideProps(store => async ({}) => {
+  const dispatch = store.dispatch as NextThunkDispatch;
+  await dispatch(await fetchTracks())
+});

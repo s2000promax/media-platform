@@ -10,7 +10,10 @@ export const FileUploadComponent: React.FC<FileUploadComponentProps & PropsWithC
   const ref = useRef<HTMLInputElement>(null);
 
   const changeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFile(event.target.files);
+    if (!!event.target.files) {
+      setFile(event.target.files[0]);
+    }
+
   }
 
   return (
