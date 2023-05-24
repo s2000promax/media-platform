@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import {Document} from 'mongoose';
 import * as mongoose from 'mongoose'
 
-export type TrackDocument = HydratedDocument<Track>;
+export type TrackDocument = Track & Document;
 
 @Schema()
 export class Track {
